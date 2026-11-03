@@ -1,2 +1,2 @@
 # Terminal-game
-yes
+Minesweeper

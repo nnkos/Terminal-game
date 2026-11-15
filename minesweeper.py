@@ -46,11 +46,18 @@ for i in range(size[0]):
                         mine_counter += 1
             board_backend[i][j] = str(mine_counter)
 
-for row in board_backend:
-    print(' '.join(row))
 
-for row in board_ui:
-    print(' '.join(row))
 
-    
+# borad interaction 
+
+move = list(map(int(input('Enter move here').split(','))))
+choice_cell = [move[1] - 1, move[0] - 1]
+
+list_to_reveal_tiles = []
+for i in [-1, 0, 1]:
+    for j in [-1, 0, 1]:
+        cell = [choice_cell[0] + i, choice_cell[1] + j]
+        if 0 <= cell[0] < size[0] and 0 <= cell[1] < size[1]:
+            list_to_reveal_tiles.append(cell)
+            
         

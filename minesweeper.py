@@ -1,5 +1,7 @@
 # minesweeper game
 import random
+import math
+import time
 
 # difficulty, board size
 
@@ -59,5 +61,23 @@ for i in [-1, 0, 1]:
         cell = [choice_cell[0] + i, choice_cell[1] + j]
         if 0 <= cell[0] < size[0] and 0 <= cell[1] < size[1]:
             list_to_reveal_tiles.append(cell)
-            
-        
+
+# Randomly select a number of cells to reveal 
+
+lower = max(3, math.ceil(0.33 * len(list_to_reveal_tiles)))
+upper = math.ceil(0.67 * len(list_to_reveal_tiles))
+if lower > upper:
+    no_revealed_tiles = lower
+else: 
+    no_revealed_tiles = random.randint(lower, upper)
+    
+# revealing the chosen cell
+board_ui[choice_cell[0]][choice_cell[1]] = board_backend[choice_cell[0]][choice_cell[1]]
+no_revealed_tiles -= 1
+list_to_reveal_tiles.remove(choice_cell)
+
+#lose condition
+if board_backend[choice_cell[0]][choice_cell[1]] == 'X':
+    print('Game over, you lose')
+    board_ui = board_backend
+    

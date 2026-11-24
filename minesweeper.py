@@ -1,7 +1,6 @@
 # minesweeper game
 import random
 import math
-import time
 
 # difficulty, board size
 
@@ -19,14 +18,10 @@ def setting(difficulty):
 
 # base board
 
-size, mines = setting('M')
-
 def make_board(size):
     return [['_'] * size[1] for _ in range(size[0])]
 
 # mines
-
-board_backend = [['_'] * size[1] for _ in range(size[0])]
 
 def place_mines(board_backend, mines, size):
     mines_location_list = []
@@ -100,4 +95,56 @@ def check_lose(board_backend, choice_cell, board_ui):
     if board_backend[choice_cell[0]][choice_cell[1]] == 'X':
         print('Game over, you lose')
         board_ui = board_backend
+        return board_ui
     
+# win condition 
+def check_win(board_ui, board_backend, size, mines, mines_locations_list):
+    game_status = 1
+    
+    #check win
+    unrevealed_cells = 0 
+    for r in  range(size[0]):
+        for c in range(size[1]):
+            if board_ui[r][c] == '_' or board_ui[r][c] == 'F':
+                unrevealed_cells += 1
+    
+    if unrevealed_cells == mines:
+        print("Congrats, youve won")
+    #reveal all mines as flags 
+    board_ui = board_backend
+    for r, c in mines_locations_list:
+        board_ui[r][c] = 'F'
+    game_status = 0 
+    
+    return board_ui, game_status
+
+#flood fill reveal 
+
+def flood_fill(board_ui, board_backend, choice_cell, size):
+
+    if board_backend[choice_cell[0]][choice_cell[1]] == 'X':
+        return board_ui
+    
+    to_check = [choice_cell]
+    while to_check:
+        r, c = to_check.pop()
+        if board_ui[r][c] != '_':
+            continue
+        board_ui[r][c] = board_backend[r][c]
+        # only keep spreading from cells with no neighboring mines
+        if board_backend[r][c] == '0':
+            for i in [-1, 0, 1]:
+                for j in [-1, 0, 1]:
+                    x, y = r + i, c + j
+                    if 0 <= x < size[0] and 0 <= y < size[1]:
+                        to_check.append([x, y])
+ 
+    return board_ui
+
+#show board
+ 
+def print_board(board_ui):
+    for row in board_ui:
+        print(' '.join(row))
+    print()
+

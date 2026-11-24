@@ -17,7 +17,7 @@ def main():
     board_ui = make_board(size)
     board_backend = make_board(size)
  
-    mines_location_list = place_mines(board_backend, size, mines)
+    mines_location_list = place_mines(board_backend, mines, size)
     fill_backend(board_backend, size)
  
     choice_cell = get_move()

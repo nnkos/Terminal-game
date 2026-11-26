@@ -1,6 +1,7 @@
 # minesweeper game
 import random
 import math
+import time
 
 # difficulty, board size
 
@@ -48,74 +49,35 @@ def fill_backend(board_backend, size):
                         if 0 <= x < size[0] and 0 <= y < size[1] and board_backend[x][y] == 'X':
                             mine_counter += 1
                 board_backend[i][j] = str(mine_counter)
-
-
-
-# board interaction 
-
-def get_move():
-    move = list(map(int(input('Enter move here').split(','))))
-    choice_cell = [move[1] - 1, move[0] - 1]
-    return choice_cell
-
-def get_tiles_to_reveal(choice_cell, size):
-    list_to_reveal_tiles = []
-    for i in [-1, 0, 1]:
-        for j in [-1, 0, 1]:
-            cell = [choice_cell[0] + i, choice_cell[1] + j]
-            if 0 <= cell[0] < size[0] and 0 <= cell[1] < size[1]:
-                list_to_reveal_tiles.append(cell)
-    return list_to_reveal_tiles
-
-
-# Randomly select a number of cells to reveal 
-
-def get_reveal_count(list_to_reveal_tiles):
-
-    lower = max(3, math.ceil(0.33 * len(list_to_reveal_tiles)))
-    upper = math.ceil(0.67 * len(list_to_reveal_tiles))
-    if lower > upper:
-        no_revealed_tiles = lower
-    else: 
-        no_revealed_tiles = random.randint(lower, upper)
-    return no_revealed_tiles
-
-# revealing the chosen cell
-
-def reveal_chosen_cell(board_ui, board_backend, no_revealed_tiles, list_to_reveal_tiles, choice_cell):
-
-    board_ui[choice_cell[0]][choice_cell[1]] = board_backend[choice_cell[0]][choice_cell[1]]
-    no_revealed_tiles -= 1
-    list_to_reveal_tiles.remove(choice_cell)
-    return no_revealed_tiles
-    
-
+                
 #lose condition
+
 def check_lose(board_backend, choice_cell, board_ui):
     if board_backend[choice_cell[0]][choice_cell[1]] == 'X':
         print('Game over, you lose')
         board_ui = board_backend
         return board_ui
     
-# win condition 
-def check_win(board_ui, board_backend, size, mines, mines_locations_list):
+# win condition
+ 
+def check_win(board_ui, board_backend, size, mines, mines_location_list):
     game_status = 1
-    
-    #check win
-    unrevealed_cells = 0 
-    for r in  range(size[0]):
+
+    # check win condition
+    unrevealed_cells = 0
+    for r in range(size[0]):
         for c in range(size[1]):
             if board_ui[r][c] == '_' or board_ui[r][c] == 'F':
                 unrevealed_cells += 1
-    
-    if unrevealed_cells == mines:
-        print("Congrats, youve won")
-    #reveal all mines as flags 
-    board_ui = board_backend
-    for r, c in mines_locations_list:
-        board_ui[r][c] = 'F'
-    game_status = 0 
-    
+
+    if unrevealed_cells == mines: 
+        print('Congratulations, you won!')
+        # Reveal all mines as flags
+        board_ui = board_backend
+        for r, c in mines_location_list:
+            board_ui[r][c] = 'F'
+        game_status = 0
+
     return board_ui, game_status
 
 #flood fill reveal 
@@ -131,7 +93,7 @@ def flood_fill(board_ui, board_backend, choice_cell, size):
         if board_ui[r][c] != '_':
             continue
         board_ui[r][c] = board_backend[r][c]
-        # only keep spreading from cells with no neighboring mines
+
         if board_backend[r][c] == '0':
             for i in [-1, 0, 1]:
                 for j in [-1, 0, 1]:
@@ -141,6 +103,29 @@ def flood_fill(board_ui, board_backend, choice_cell, size):
  
     return board_ui
 
+# move action
+
+def move_action(board_ui):
+    print('Enter move here in the following format : F,x,y or D,x,y (where F is a flag or D is to dig, with x and y being the coordinates)')
+    move = input().upper()
+    print(move)
+ 
+    parts = move.split(',')
+    action = parts[0]
+    choice_cell = [int(parts[2]) - 1, int(parts[1]) - 1]
+ 
+    if action == 'F' and board_ui[choice_cell[0]][choice_cell[1]] == '_':
+        board_ui[choice_cell[0]][choice_cell[1]] = 'F'
+    elif action == 'F' and board_ui[choice_cell[0]][choice_cell[1]] == 'F':
+        board_ui[choice_cell[0]][choice_cell[1]] = '_'
+    elif action == 'F':
+        print('You cannot flag a revealed cell.')
+        raise ValueError('Revealed cell')
+    elif action == 'D':
+        pass
+ 
+    return action, choice_cell
+
 #show board
  
 def print_board(board_ui):
@@ -148,3 +133,20 @@ def print_board(board_ui):
         print(' '.join(row))
     print()
 
+#stats 
+
+def move_stats(board_ui, size, mines, move_counter, game_start_time):
+    end_time = time.perf_counter()
+    elapsed_time = end_time - game_start_time
+    print(elapsed_time)
+ 
+    move_counter += 1
+ 
+    no_mines_counter = 0
+    for i in range(size[0]):
+        for j in range(size[1]):
+            if board_ui[i][j] == 'F':
+                no_mines_counter += 1
+    no_mines_counter = mines - no_mines_counter
+ 
+    return move_counter, no_mines_counter, elapsed_time

@@ -129,8 +129,16 @@ def move_action(board_ui):
 #show board
  
 def print_board(board_ui):
-    for row in board_ui:
-        print(' '.join(row))
+    rows, cols = len(board_ui), len(board_ui[0])
+    width = len(str(max(rows, cols)))          # width of the biggest axis number
+
+    header = ' ' * (width + 3) + ' '.join(f'{c:>{width}}' for c in range(1, cols + 1))
+    divider = ' ' * (width + 1) + '+' + '-' * (len(header) - width - 1)
+
+    print(header)
+    print(divider)
+    for r, row in enumerate(board_ui, 1):
+        print(f'{r:>{width}} | ' + ' '.join(f'{cell:>{width}}' for cell in row))
     print()
 
 #stats 
@@ -138,8 +146,7 @@ def print_board(board_ui):
 def move_stats(board_ui, size, mines, move_counter, game_start_time):
     end_time = time.perf_counter()
     elapsed_time = end_time - game_start_time
-    print(elapsed_time)
- 
+
     move_counter += 1
  
     no_mines_counter = 0
